@@ -154,7 +154,7 @@ lairFarm:Toggle("Begin Lair Farm", false, function()
 
 							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
 							workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0
-							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Living:FindFirstChild("Boss"):WaitForChild("HumanoidRootPart").CFrame
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Living:FindFirstChild("Boss"):WaitForChild("HumanoidRootPart").CFrame * CFrame.new(0, -6, 4, 1, 0, 0, 1)
 							repeat workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0 until workspace.Living:FindFirstChild("Boss").Humanoid.Health == 0
 						end)
 					until not workspace.Living:FindFirstChild("Boss") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid").Health == 0 or StartLairFarming == false
@@ -525,22 +525,4 @@ teleports:Label("Lair Teleports")
 
 teleports:Label("coming soon")
 
-
-task.spawn(function()
-  while true do
-    wait()
-    if game.workspace.Living:FindFirstChild("Boss") then
-      sethiddenproperty(player, "SimulationRadius", math.huge)
-      for _, v in pairs(workspace.Living:GetChildren()) do
-        if v:IsA("Model") and v:FindFirstChild("Humanoid") and v.Name == "Boss" then
-          v.Humanoid.Health = 0
-        end
-      end
-    end
-  end
-end)
-
-
 --win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
-
-ok this code has the same lair dungeon, but i want its dungeon positioning same as the other code

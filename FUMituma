@@ -30,7 +30,7 @@ end
 _G.MyName = tostring(player.Name)
 
 
-local azrlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/RedzLibV5/refs/heads/main/Source.lua"))()
+local azrlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Jshn011/SUR/refs/heads/main/Redzv5%20lib"))()
 
 local Window = azrlib:MakeWindow({
   "Azurium HUB | Stand Upright Rebooted",

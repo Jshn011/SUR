@@ -88,69 +88,84 @@ end)
 local lairFarm = serv:Channel("Lair Farm")
 
 lairFarm:Button("Tutorial", function()
-	DiscordLib:Notification("Tutorial", "Select a dungeon from the dropdown and press 'Begin Lair Farm'.", "Ok")
+	DiscordLib:Notification("Tutorial", "Stand near Lair NPC and press 'Select Lair NPC'", "Ok")
 end)
 
 lairFarm:Seperator()
 
--- Dungeon Positions
-local dungeonPositions = {
-   ["Level 15+"] = CFrame.new(-722.297668, 67.0181732, -940.724182),
-   ["Level 40+"] = CFrame.new(-726.523804, 67.0282059, -386.987396),
-   ["Level 80+"] = CFrame.new(-323.425873, 66.9731827, -133.544128),
-   ["Level 100+"] = CFrame.new(-90.7289734, 66.9272995, -888.08728),
-   ["Level 200+"] = CFrame.new(28081.9238, 47.2731171, -234.488235)
-}
+local SelectedLairNPC
+local SelectedLairNPCText
 
--- Dungeon List
-local DungeonList = {
-   "Level 15+", "Level 40+", "Level 80+", "Level 100+", "Level 200+"
-}
-
--- Add Dungeon Selection Dropdown
-lairFarm:Dropdown("Select Dungeon", DungeonList, function(selected)
-   _G.Dungeon = selected
-   DiscordLib:Notification("Dungeon Selected", "You have selected: " .. selected, "Ok")
+lairFarm:Button("Select Lair NPC", function()
+	for i, v in pairs(workspace.Map.NPCs:GetChildren()) do
+		if v:FindFirstChild("HumanoidRootPart") then
+			if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude < 15 then
+				SelectedLairNPC = v
+				SelectedLairNPCText = v.Head:FindFirstChild("Main").Text.Text
+				
+				DiscordLib:Notification("Success!", "Chosen Lair: " .. SelectedLairNPCText, "Ok")
+			end
+		end
+	end
 end)
 
--- Begin Lair Farm Toggle
+function TriggerLair()
+	local Done
+	for i, v in pairs(SelectedLairNPC:GetChildren()) do
+		if v.Name == "Done" then
+			Done = v
+		end
+	end
+
+	if Done then
+		Done:FireServer()
+	else
+		DiscordLib:Notification("Sorry!", "An unexpected error occurred.", "Ok")
+	end
+end
+
 local StartLairFarming = false
-lairFarm:Toggle("Begin Lair Farm", false, function(state)
-   StartLairFarming = state
+lairFarm:Toggle("Begin Lair Farm", false, function()
+	StartLairFarming = not StartLairFarming
 
-   if StartLairFarming then
-      if _G.Dungeon then
-         local targetCFrame = dungeonPositions[_G.Dungeon]
-         if targetCFrame then
-            -- Teleport to the dungeon
-            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
+	if StartLairFarming then
+		if SelectedLairNPC then
+			while StartLairFarming and task.wait() do
+				pcall(function()
+					TriggerLair()
+					game:GetService("Workspace").Living:WaitForChild("Boss", 10000)
 
-            -- Start farming loop
-            while StartLairFarming and task.wait() do
-               pcall(function()
-                  -- Clear dungeon minions
-                  for _, mob in pairs(workspace.Living:GetChildren()) do
-                     if mob:IsA("Model") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                        mob.Humanoid.Health = 0
-                     end
-                  end
+					repeat
+						task.wait()
+						pcall(function()
+							for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.CDgui.fortnite:GetChildren()) do
+								if v:IsA("Frame") and v.Textt.Text == "Punch" then
+									-- Polar Was Here!
+								else
+									game:GetService("Players").LocalPlayer.Character.StandEvents.M1:FireServer()
+								end
+							end
+							if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Aura").Value == false then
+								game:GetService("Players").LocalPlayer.Character.StandEvents.Summon:FireServer()
+							end
+							if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Stand") then
+								game:GetService("Players").LocalPlayer.Character.Stand:WaitForChild("HumanoidRootPart").CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
+							end
 
-                  -- Teleport back to the dungeon position if the player moves away
-                  if (game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position - targetCFrame.Position).Magnitude > 50 then
-                     game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
-                  end
-               end)
-            end
-         else
-            DiscordLib:Notification("Error", "Invalid dungeon selected!", "Ok")
-         end
-      else
-         DiscordLib:Notification("Error", "Please select a dungeon first!", "Ok")
-      end
-   end
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+							workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0
+							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Living:FindFirstChild("Boss"):WaitForChild("HumanoidRootPart").CFrame
+							repeat workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0 until workspace.Living:FindFirstChild("Boss").Humanoid.Health == 0
+						end)
+					until not workspace.Living:FindFirstChild("Boss") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid").Health == 0 or StartLairFarming == false
+					wait(1)
+				end)
+			end
+		else
+			DiscordLib:Notification("Error!", "You are missing a step! Check the tutorial!", "Ok")
+		end
+	end
 end)
-
--- Rest of the script remains unchanged...
 
 local questFarm = serv:Channel("Quest Farm")
 
@@ -527,3 +542,5 @@ end)
 
 
 --win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
+
+ok this code has the same lair dungeon, but i want its dungeon positioning same as the other code

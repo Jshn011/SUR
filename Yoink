@@ -126,44 +126,47 @@ end
 
 local StartLairFarming = false
 lairFarm:Toggle("Begin Lair Farm", false, function()
-	StartLairFarming = not StartLairFarming
+    StartLairFarming = not StartLairFarming
 
-	if StartLairFarming then
-		if SelectedLairNPC then
-			while StartLairFarming and task.wait() do
-				pcall(function()
-					TriggerLair()
-					game:GetService("Workspace").Living:WaitForChild("Boss", 10000)
+    if StartLairFarming then
+        if SelectedLairNPC then
+            while StartLairFarming and task.wait() do
+                pcall(function()
+                    -- Trigger the lair event
+                    TriggerLair()
 
-					repeat
-						task.wait()
-						pcall(function()
-							for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui.CDgui.fortnite:GetChildren()) do
-								if v:IsA("Frame") and v.Textt.Text == "Punch" then
-									-- Polar Was Here!
-								else
-									game:GetService("Players").LocalPlayer.Character.StandEvents.M1:FireServer()
-								end
-							end
-							if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Aura").Value == false then
-								game:GetService("Players").LocalPlayer.Character.StandEvents.Summon:FireServer()
-							end
-							if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Stand") then
-								game:GetService("Players").LocalPlayer.Character.Stand:WaitForChild("HumanoidRootPart").CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
-							end
+                    -- Wait for the boss to spawn
+                    game:GetService("Workspace").Living:WaitForChild("Boss", 10000)
 
-							workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0
-							game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Living:FindFirstChild("Boss"):WaitForChild("HumanoidRootPart").CFrame * CFrame.new(0, 0, -5)
-							repeat workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0 until workspace.Living:FindFirstChild("Boss").Humanoid.Health == 0
-						end)
-					until not workspace.Living:FindFirstChild("Boss") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid").Health == 0 or StartLairFarming == false
-					wait(1)
-				end)
-			end
-		else
-			DiscordLib:Notification("Error!", "You are missing a step! Check the tutorial!", "Ok")
-		end
-	end
+                    -- Fight the boss
+                    repeat
+                        task.wait()
+                        pcall(function()
+                            -- Summon stand if not already summoned
+                            if game:GetService("Players").LocalPlayer.Character:FindFirstChild("Aura").Value == false then
+                                game:GetService("Players").LocalPlayer.Character.StandEvents.Summon:FireServer()
+                            end
+
+                            -- Stop player movement
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+
+                            -- Set boss health to zero
+                            workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0
+
+                            -- Teleport player to boss
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Living:FindFirstChild("Boss"):WaitForChild("HumanoidRootPart").CFrame *  CFrame.new(0, -6, 4, 1, 0, 0, 1)
+
+                            -- Wait until boss is defeated
+                            repeat workspace.Living:FindFirstChild("Boss").Humanoid.Health = 0 until workspace.Living:FindFirstChild("Boss").Humanoid.Health == 0
+                        end)
+                    until not workspace.Living:FindFirstChild("Boss") or game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid").Health == 0 or StartLairFarming == false
+                    wait(1)
+                end)
+            end
+        else
+            DiscordLib:Notification("Error!", "You are missing a step! Check the tutorial!", "Ok")
+        end
+    end
 end)
 
 local questFarm = serv:Channel("Quest Farm")

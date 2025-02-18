@@ -33,8 +33,8 @@ _G.MyName = tostring(player.Name)
 local azrlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Jshn011/SUR/refs/heads/main/Redzv5%20lib"))()
 
 local Window = azrlib:MakeWindow({
-  "Azurium HUB | Stand Upright Rebooted",
-  "by mituma",
+  "Stand Upright Hub",
+  "rebooted by Derp",
   "azurium-hub-sur.json"
 })
 
